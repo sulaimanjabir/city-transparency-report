@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx shadcn@latest add input label card badge separator)",
+      "Bash(npm run *)",
+      "Bash(npx shadcn@latest add dialog select textarea switch scroll-area avatar)"
+    ]
+  }
+}

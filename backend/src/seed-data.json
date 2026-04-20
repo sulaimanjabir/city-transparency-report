@@ -1,0 +1,123 @@
+{
+  "city": {
+    "name": "Mardan",
+    "slug": "mardan"
+  },
+  "departments": [
+    {
+      "name": "Health",
+      "slug": "health",
+      "complaintTypes": [
+        "HCIP - Health Khyber Pakhtunkhwa",
+        "Medical Teaching Institutes",
+        "Secondary Health",
+        "Primary Health Citizens Portal",
+        "Spurious / Unregistered Medicines",
+        "Illegal Practice / Quacks"
+      ]
+    },
+    {
+      "name": "Education",
+      "slug": "education",
+      "complaintTypes": [
+        "Special Education",
+        "Higher Education Commission",
+        "Universities",
+        "Colleges",
+        "Citizens Portal",
+        "Elementary & Secondary",
+        "Private Schools"
+      ]
+    },
+    {
+      "name": "Land Revenue",
+      "slug": "land-revenue",
+      "complaintTypes": [
+        "Complaint against Land Mafia",
+        "Transfer of Land / Mutation"
+      ]
+    },
+    {
+      "name": "Municipal Services",
+      "slug": "municipal-services",
+      "complaintTypes": [
+        "Low Hanging Electricity Wires",
+        "Illegal Billboards",
+        "Construction Material on Roads",
+        "Stray Animals",
+        "Illegal Construction",
+        "Parking / Adda",
+        "Unhygienic Food / Factory",
+        "Graveyards",
+        "Price Control",
+        "Repair of Street",
+        "Street Lights",
+        "Water Supply Scheme"
+      ]
+    },
+    {
+      "name": "Law & Order",
+      "slug": "law-and-order",
+      "complaintTypes": [
+        "Low Hanging Electricity Wires",
+        "Illegal Billboards",
+        "Construction Material on Roads",
+        "Stray Animals",
+        "Illegal Construction",
+        "Parking / Adda",
+        "Unhygienic Food / Factory",
+        "Graveyards",
+        "Price Control",
+        "Repair of Street",
+        "Street Lights",
+        "Water Supply Scheme"
+      ]
+    },
+    {
+      "name": "Farmer / Agriculture",
+      "slug": "farmer-agriculture",
+      "complaintTypes": [
+        "Crop Insurance",
+        "Agriculture Loan",
+        "Kissan Card",
+        "Agriculture Engineering",
+        "Pesticides",
+        "Prices of Crops / Produce",
+        "Fertilizers",
+        "Seeds",
+        "Water Management",
+        "Soil Conservation",
+        "Miscellaneous (Farmers)"
+      ]
+    },
+    {
+      "name": "Excise & Taxation",
+      "slug": "excise-taxation",
+      "complaintTypes": [
+        "Islamabad Excise",
+        "Financial Fraud",
+        "Money Laundering",
+        "Provincial Excise"
+      ]
+    },
+    {
+      "name": "Human Rights",
+      "slug": "human-rights",
+      "complaintTypes": [
+        "Terrorism",
+        "Missing Persons",
+        "Rights of Prisoners",
+        "Business & Human Rights",
+        "Sortal",
+        "Rights of Transgender Persons",
+        "Labour Rights",
+        "Rights of Senior Citizens",
+        "Rights of Persons with Disabilities",
+        "Rights to Life, Liberty and Dignity",
+        "Minorities' Rights",
+        "Child Rights",
+        "Women Rights"
+      ]
+    }
+  ]
+}
