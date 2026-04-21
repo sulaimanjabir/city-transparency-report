@@ -46,8 +46,6 @@ export default function ComplaintCard({ caseData, onRefresh }: Props) {
   const canJoin = !isReporter && ['pending', 'verifying_in_progress', 'verifying'].includes(caseData.status);
   const canVote = isReporter && caseData.status === 'verifying' && !hasVoted;
 
-  console.log('[canJoin debug]', { userId: user?.id, reporterIds: caseData.reporterIds, status: caseData.status, isReporter, canJoin });
-
   const totalVotes = caseData.resolvedVotes + caseData.notResolvedVotes;
   const resolvedPct = totalVotes > 0 ? Math.round((caseData.resolvedVotes / totalVotes) * 100) : 0;
 

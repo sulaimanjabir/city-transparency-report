@@ -1,23 +1,69 @@
 # City Transparency Report
 
-A civic accountability web application built as a Final Year Project (FYP). It enables citizens of Mardan to report public issues, track departmental responses, and collectively verify whether resolutions are genuine — through a community-driven voting mechanism.
+## Introduction
+
+In everyday life, citizens constantly encounter public issues such as broken roads, poor sanitation, and water shortages. While many people recognize these problems, they often remain unresolved. This reflects the **"Someone Paradox"** — everyone assumes someone else will take action.
+
+This project shifts citizens from passive observers to active participants, enabling the people of Mardan to not only report issues but also collaborate and verify their resolution.
 
 ---
 
-## The Core Idea
+## Problem Perspective (Public View)
 
-Traditional complaint portals let government departments self-report resolutions. This system introduces **community mandate voting**: a case is only marked as *Resolved* when ≥75% of all citizens who reported that issue vote that it has genuinely been fixed. If the vote falls below the threshold, the case becomes *Disputed* — a permanent public record that the department's resolution was rejected by citizens.
+From a citizen's point of view, getting issues resolved is challenging due to:
+
+- **Limited Voice in Outcomes** — Citizens can report problems, but they are not involved in confirming whether the issue is truly resolved
+- **Isolation of Individuals** — People facing the same issue remain disconnected, reducing the chances of collective action
+- **Lack of Trust and Clarity** — There is no reliable way for citizens to verify whether the reported work has actually been completed
+
+These challenges reduce public confidence and slow down real progress.
 
 ---
 
-## Features
+## Proposed Solution
 
-- **Citizens** can file complaints, join existing cases for the same issue, and vote on departmental resolutions
-- **Department Admins** manage cases assigned to their department — mark in-progress, upload proof, and mark as solved
-- **Super Admin** creates and manages department official accounts across all departments
-- **Live vote progress bar** showing resolved vs. disputed vote ratio per case
-- **Transparent feed** showing all active cases in the city sorted by community engagement
-- **Anonymous reporting** option for citizens who prefer privacy
+A community-driven civic accountability web application that empowers citizens to collaborate, track progress, and validate outcomes of public issues.
+
+Instead of relying solely on authorities, the platform ensures that citizens collectively decide when a problem is truly solved.
+
+### Core Innovation: Community Mandate Voting
+
+- Citizens who reported or joined a case can vote on its resolution
+- A case is marked **Resolved** only when ≥75% of citizens agree
+- If the threshold is not met, the case becomes **Disputed**
+- Disputed cases remain visible as public records, ensuring transparency
+
+This transforms citizens from passive reporters into decision-makers, directly addressing the trust gap.
+
+---
+
+## Key Features
+
+### 1. Citizen Collaboration
+- Report issues or join existing ones
+- Connect with others facing the same problem
+- Build collective momentum
+
+### 2. Transparent Case Tracking
+- Track each case from reporting to resolution
+- View real-time updates and progress
+
+### 3. Proof-Based Updates
+- Authorities provide evidence (images, documents) of work done
+- Citizens can review and assess authenticity
+
+### 4. Community Voting System
+- Citizens vote to accept or reject resolution
+- Live progress bar shows approval vs rejection
+
+### 5. Public Transparency Feed
+- All cases are publicly visible
+- Sorted by engagement and urgency
+- Encourages awareness and participation
+
+### 6. Anonymous Reporting
+- Allows citizens to report issues without revealing identity
+- Increases participation and safety
 
 ---
 
@@ -35,8 +81,6 @@ pending → verifying_in_progress → verifying → resolved
 | `verifying` | Dept admin marks it solved (with photo proof) |
 | `resolved` | ≥75% of reporters vote "Yes, fixed" |
 | `disputed` | All reporters voted, <75% said "fixed" — permanent record |
-
-Resolution is only finalized once **every reporter has cast a vote**, ensuring no single user can prematurely close a case.
 
 ---
 
@@ -75,12 +119,13 @@ govt/
 │       ├── auth/              # JWT strategy, guards, login/register/create-admin
 │       ├── cases/             # Complaint submission, join, status transitions, feeds
 │       ├── votes/             # Community vote casting and resolution recalculation
+│       ├── initiatives/       # Civic crowdfunding — create, donate, proof, satisfaction
 │       ├── users/             # User management, dept admin listing
 │       ├── cities/            # City lookup (public)
 │       ├── departments/       # Department lookup by city (public)
 │       ├── complaint-types/   # Complaint type lookup by department (public)
 │       └── database/
-│           ├── schemas/       # Mongoose schemas: User, MasterCase, UserReport, Vote, City, Department, ComplaintType
+│           ├── schemas/       # Mongoose schemas: User, MasterCase, UserReport, Vote, Initiative, Donation, SatisfactionVote, City, Department, ComplaintType
 │           └── seeder.service.ts  # Idempotent DB seeder (runs once on bootstrap)
 │
 └── frontend/
@@ -88,46 +133,16 @@ govt/
         ├── api/               # Axios API modules per domain
         ├── components/
         │   ├── cases/         # ComplaintCard, VoteModal, JoinCaseModal, SubmitComplaintFAB
+        │   ├── initiatives/   # InitiativeCard, CreateInitiativeModal, PostProofModal
         │   └── layout/        # CitizenLayout, DeptAdminLayout, SuperAdminLayout
         ├── pages/
         │   ├── auth/          # LoginPage, RegisterPage
-        │   ├── citizen/       # CitizenDashboard (feed + my submissions)
-        │   ├── dept-admin/    # DeptAdminDashboard (case management + filters)
+        │   ├── citizen/       # CitizenDashboard (feed + my submissions + initiatives)
+        │   ├── dept-admin/    # DeptAdminDashboard (cases + initiatives management)
         │   └── super-admin/   # SuperAdminDashboard (create dept admins)
         ├── routes/            # ProtectedRoute (role-based guard)
         └── store/             # Zustand auth store
 ```
-
----
-
-## Architecture
-
-### Backend — Modular NestJS
-Each domain (auth, cases, votes, users, etc.) is an isolated NestJS module with its own controller, service, and DTOs. Modules explicitly declare their exports, keeping dependencies clean and testable.
-
-### Authentication & Authorization
-- Login issues a signed JWT containing `userId`, `email`, `role`, `cityId`, `departmentId`
-- Every protected endpoint uses `JwtAuthGuard` (validates token) + `RolesGuard` (checks `@Roles()` decorator)
-- Department admins are scoped at the service layer — they can only act on cases belonging to their `departmentId`
-
-### Data Model
-- **MasterCase** aggregates all reports of the same issue (same city + department + complaint type). Citizens join the same master case rather than creating duplicates — this is the `findOrCreate` pattern.
-- **UserReport** stores each individual citizen's description and location for a case.
-- **Vote** has a compound unique index on `(userId, masterCaseId)` — enforced at both DB and application level to prevent double voting.
-
-### Vote Resolution Logic
-```
-resolvedPct = resolvedVotes / totalReporters
-if (allReportersVoted && resolvedPct >= 0.75) → RESOLVED
-if (allReportersVoted && resolvedPct <  0.75) → DISPUTED
-```
-Resolution recalculates on every vote event. The case stays in `verifying` until every reporter has voted.
-
-### Frontend — Component Architecture
-- **API layer** (`src/api/`) is completely decoupled from UI — each module exports typed async functions
-- **Auth state** lives in Zustand, persisted to localStorage, consumed anywhere via `useAuthStore()`
-- **ProtectedRoute** wraps each route and checks `user.role` against `allowedRoles` before rendering
-- **Layout components** are role-specific shells (sidebar + main area) that accept children, keeping page components free of navigation concerns
 
 ---
 
@@ -137,7 +152,7 @@ Resolution recalculates on every vote event. The case stays in `verifying` until
 Controller → Service → Schema. Controllers only handle HTTP I/O. Services contain all business logic. Schemas define data shape. No business logic leaks into controllers or schemas.
 
 ### Single Responsibility Principle
-Each NestJS service has one job. `VotesService` handles voting and recalculation. `CasesService` handles complaint lifecycle. `UsersService` handles user operations. They do not cross-call except through explicit module imports.
+Each NestJS service has one job. `VotesService` handles voting and recalculation. `CasesService` handles complaint lifecycle. `InitiativesService` handles civic crowdfunding. They do not cross-call except through explicit module imports.
 
 ### DRY (Don't Repeat Yourself)
 - `findOrCreate` pattern prevents duplicate case creation across the codebase
@@ -145,19 +160,16 @@ Each NestJS service has one job. `VotesService` handles voting and recalculation
 - Shared `StatusBadge` component renders consistently in both citizen and dept-admin views
 
 ### Role-Based Access Control (RBAC)
-Three roles with strictly enforced boundaries. The `@Roles()` decorator + `RolesGuard` on the backend, and `ProtectedRoute` on the frontend, ensure no role can access another's resources. Department admins are additionally scoped to their own department at the service layer.
+Three roles with strictly enforced boundaries. The `@Roles()` decorator + `RolesGuard` on the backend, and `ProtectedRoute` on the frontend, ensure no role can access another's resources.
 
 ### Fail-Safe Defaults
 - Votes cannot be cast twice (DB-level unique index + application-level check)
 - Cases cannot be resolved prematurely — all reporters must vote
-- Disputed cases cannot be deleted — they are permanent public records
-- JWT expiry is enforced; expired tokens trigger automatic logout via Axios interceptor
+- Disputed cases cannot be deleted — permanent public records
+- JWT expiry is enforced; expired tokens trigger automatic logout
 
 ### Idempotent Seeding
-The `SeederService` checks for existing data before inserting. Re-running the server never duplicates seed data (city, departments, complaint types, super admin).
-
-### Optimistic UI + Server Validation
-Frontend validates inputs (description length, required fields) before sending requests, giving instant feedback. Backend re-validates everything independently via `ValidationPipe` with `whitelist: true`, which strips any fields not declared in the DTO.
+The `SeederService` checks for existing data before inserting. Re-running the server never duplicates seed data.
 
 ---
 
@@ -179,9 +191,7 @@ npm install
 npm run start:dev
 ```
 
-On first start, the seeder automatically creates:
-- Mardan city with 8 departments and all complaint types
-- Super Admin account: `admin@mardan.gov.pk` / `superadmin123`
+On first start, the seeder automatically creates Mardan city, 8 departments, all complaint types, and a Super Admin account.
 
 ### Frontend
 ```bash
@@ -201,27 +211,4 @@ npm run dev
 
 ---
 
-## API Overview
-
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| POST | `/auth/register` | Public | Register as citizen |
-| POST | `/auth/login` | Public | Login, receive JWT |
-| POST | `/auth/create-dept-admin` | Super Admin | Create dept official account |
-| GET | `/cities` | Public | List all cities |
-| GET | `/departments?cityId=` | Public | List departments by city |
-| GET | `/complaint-types?departmentId=` | Public | List complaint types |
-| POST | `/cases` | Citizen | Submit a complaint |
-| POST | `/cases/:id/join` | Citizen | Join an existing case |
-| GET | `/cases/feed/:cityId` | Citizen | Get city-wide feed |
-| GET | `/cases/my` | Citizen | Get my submitted cases |
-| PUT | `/cases/:id/in-progress` | Dept Admin | Mark case in progress |
-| PUT | `/cases/:id/solve` | Dept Admin | Mark case solved with proof |
-| GET | `/cases/department` | Dept Admin | Get department's cases |
-| POST | `/votes/:caseId` | Citizen (reporter) | Cast a resolution vote |
-| GET | `/votes/:caseId/status` | Citizen | Check if already voted |
-| GET | `/users/dept-admins` | Super Admin | List all dept admin accounts |
-
----
-
-*Built as a Final Year Project — Mardan, KPK, Pakistan*
+*Final Year Project — Mardan, KPK, Pakistan*
