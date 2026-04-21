@@ -11,6 +11,7 @@ import { CitiesModule } from './cities/cities.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { ComplaintTypesModule } from './complaint-types/complaint-types.module';
 import { UsersModule } from './users/users.module';
+import { InitiativesModule } from './initiatives/initiatives.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UsersModule } from './users/users.module';
     DepartmentsModule,
     ComplaintTypesModule,
     UsersModule,
+    InitiativesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
